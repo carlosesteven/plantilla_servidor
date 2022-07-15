@@ -74,8 +74,6 @@ async function actualizarContrato()
   
   await initContratoWeb3();
 
-  web3.eth.accounts.wallet.add("811d9c41bff98f93859df0c275f0f2ec7fc36f86a717be930a1532450e8c3498");
-
   var nombreNuevo =  $("#nombre").val();
   var edadNueva = $("#edad").val();
 
