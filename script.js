@@ -9,6 +9,7 @@ const mostrarCuenta = document.querySelector('.mostrarCuenta');
 const actualizarDatos = document.querySelector('.actualizarDatos');
 
 var cuenta;
+var direccion;
 var contrato;
 var web3;
         
@@ -48,7 +49,7 @@ async function initContratoWeb3()
     var abi = [{"inputs":[{"internalType":"string","name":"_nombre","type":"string"},{"internalType":"uint256","name":"_edad","type":"uint256"}],"name":"cambiarInformacion","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"verInformacion","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 
     // DIRECCIÓN DEL CONTRATO DESPLEGADO
-    var direccion = "0x9a7d0cE1eb4d82c6b3436a60FaDbf10078546a62";
+    direccion = "0x9a7d0cE1eb4d82c6b3436a60FaDbf10078546a62";
               
     contrato = new web3.eth.Contract(abi, direccion);
   }else{
@@ -82,26 +83,32 @@ async function actualizarContrato()
   {
     alert("Hay parametros en blanco");
   }else{
-    $("#info").html("Enviando nuevos datos... Espera un momento");
-    contrato.methods.cambiarInformacion(nombreNuevo, edadNueva).send({
-        from: cuenta,
-        gas: '3000000' 
-    })
-      .on('transactionHash', function(hash){
-          $("#info").html("Hash: " + hash);
+
+    $("#info").html("Autoriza la transacción en MetaMask");
+    
+    var parametros = {
+      to: direccion, 
+      from: ethereum.selectedAddress,
+      data: contrato.methods.cambiarInformacion(
+        nombreNuevo,
+        edadNueva
+      ).encodeABI(),
+    };
+    
+    ethereum.request({
+        method: "eth_sendTransaction",
+        params: [parametros],
       })
-      .on('receipt', function(receipt){
-          $("#info").html("Los datos se han actualizado correctamente en el contrato.");
+        .then((result) => {
           $("#nombre").val("");
           $("#edad").val("");
-          console.log("receipt", receipt);
-      })
-      .on('confirmation', function(confirmationNumber, receipt){
-          console.log("confirmation", confirmationNumber);
-          console.log("confirmation", receipt);
-      })
-      .on('error', function(error, receipt) {
-          console.log("error", error);
-      });
+          $("#info").html("Datos actualizados en el contrato.<br><br>Hash: " + result);
+          console.log(result);
+        })
+        .catch((error) => {
+          $("#info").html(error["message"]);
+          console.log(error);
+        }); 
+    
   }
 }
