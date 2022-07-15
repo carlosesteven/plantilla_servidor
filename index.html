@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Pueba HTML Contratos</title>
+  <title>HTML Contratos</title>
   <link rel="stylesheet" type="text/css" href="main.css">
   <script src="./node_modules/web3/dist/web3.min.js">
   </script>
@@ -17,8 +17,6 @@
           
     <h2>Cuenta: <span class="mostrarCuenta">- - -</span></h2>
 
-    <button class="activarMetamask">Activar Ethereum</button>  
-
     <hr>
 
     <div class="center">
@@ -27,11 +25,15 @@
       
     <h2 id="info"></h2>
 
-    <label for="name" class="col-lg-2 control-label">Nombre</label>
-    <input id="name" type="text">
+    <button class="activarMetamask">Datos Actuales</button>  
 
-    <label for="name" class="col-lg-2 control-label">Edad</label>
-    <input id="age" type="text">
+    <hr>
+
+    <label for="nombre" class="col-lg-2 control-label">Nombre</label>
+    <input id="nombre" type="text">
+
+    <label for="edad" class="col-lg-2 control-label">Edad</label>
+    <input id="edad" type="number">
 
     <button class="actualizarDatos">Actualizar Datos</button>
 </div>
