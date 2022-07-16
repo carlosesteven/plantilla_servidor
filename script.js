@@ -9,10 +9,16 @@ const mostrarCuenta = document.querySelector('.mostrarCuenta');
 const actualizarDatos = document.querySelector('.actualizarDatos');
 
 const buscarContacto = document.querySelector('.buscarContacto');
+
+// LIBROS
 const buscarLibro = document.querySelector('.buscarLibro');
 
 var cuenta;
+
+// LIBROS
 var direccion, direccionAgenda, direccionBiblioteca;
+
+// LIBROS
 var contrato, contratoAgenda, contratoBiblioteca;
 var web3;
         
@@ -28,6 +34,7 @@ buscarContacto.addEventListener('click', () => {
     obtenerInformacionContacto();
 });
 
+// LIBROS
 buscarLibro.addEventListener('click', () => {
     obtenerInformacionBiblioteca();
 });
@@ -84,6 +91,8 @@ async function initAgendaWeb3()
   }
 }
 
+
+// LIBRO
 async function initBibliotecaWeb3()
 {
   if( contratoBiblioteca == undefined || web3 == undefined )
@@ -94,10 +103,10 @@ async function initBibliotecaWeb3()
 
     web3.eth.defaultAccount = cuenta;
 
-    // CODIGO ABI DEL CONTRATO
+    // CODIGO ABI DEL CONTRATO [ CAMBIAR ]
     var abi = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"_ISBN","type":"string"},{"indexed":false,"internalType":"string","name":"_titulo","type":"string"}],"name":"nuevoLibroRegistrado","type":"event"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"},{"internalType":"string","name":"_titulo","type":"string"},{"internalType":"string","name":"_autor","type":"string"},{"internalType":"uint256","name":"_fecha","type":"uint256"}],"name":"anadirLibro","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"}],"name":"buscarLibro","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 
-    // DIRECCIÓN DEL CONTRATO DESPLEGADO
+    // DIRECCIÓN DEL CONTRATO DESPLEGADO [ CAMBIAR ]
     direccionBiblioteca = "0x45f84e1aFDcA7dDa342485a1e3f42175D7a19be8";
               
     contratoBiblioteca = new web3.eth.Contract(abi, direccionBiblioteca);
@@ -180,6 +189,7 @@ async function obtenerInformacionContacto()
 
 } 
 
+// LIBRO
 async function obtenerInformacionBiblioteca() 
 {
   await initCuentaMetamask();
