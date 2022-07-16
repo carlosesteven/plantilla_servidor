@@ -13,3 +13,16 @@ app.use(express.static(path.join(__dirname, '/')));
 app.listen(80, function(){
   console.log("App server is running on port 80");
 });
+
+// DE ESTE ARCHIVO NO DEBEN MODIFICAR NADA.
+
+
+/*
+*
+*  SOLO DEBEN MODIFICAR LOS SIGUIENTES ARCHIVOS.
+*
+*  INDEX.HTML
+*  SCRIPT.JS
+*
+*/
+

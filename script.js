@@ -7,21 +7,26 @@ if (typeof window.ethereum !== 'undefined') {
 const datosActuales = document.querySelector('.datosActuales');
 const mostrarCuenta = document.querySelector('.mostrarCuenta');
 const actualizarDatos = document.querySelector('.actualizarDatos');
-
 const buscarContacto = document.querySelector('.buscarContacto');
 
-// LIBROS
+var cuenta;
+var direccion, direccionAgenda;
+var contrato, contratoAgenda;
+var web3;
+
+
+// LIBROS - BOTON: BUSCAR LIBRO
 const buscarLibro = document.querySelector('.buscarLibro');
 
-var cuenta;
+// LIBROS - VARIABLES DONDE ESTARA EL CONTRATO Y LA DIRECCIÓN DEL CONTRATO DESPLEGADA
+var direccionBiblioteca, contratoBiblioteca;
 
-// LIBROS
-var direccion, direccionAgenda, direccionBiblioteca;
+// LIBROS - EVENTO QUE DETECTA CUANDO EL USUARIO HACE CLIC SOBRE EL BOTON: BUSCAR LIBRO
+buscarLibro.addEventListener('click', () => {
+    obtenerInformacionBiblioteca();
+});
 
-// LIBROS
-var contrato, contratoAgenda, contratoBiblioteca;
-var web3;
-        
+
 datosActuales.addEventListener('click', () => {
     obtenerInformacionActual();
 });
@@ -32,11 +37,6 @@ actualizarDatos.addEventListener('click', () => {
 
 buscarContacto.addEventListener('click', () => {
     obtenerInformacionContacto();
-});
-
-// LIBROS
-buscarLibro.addEventListener('click', () => {
-    obtenerInformacionBiblioteca();
 });
 
 initCuentaMetamask();
@@ -92,23 +92,26 @@ async function initAgendaWeb3()
 }
 
 
-// LIBRO
+// LIBRO - FUNCIÓN QUE INSTANCIA EL CONTRATO DE LA BIBLIOTECA
 async function initBibliotecaWeb3()
 {
   if( contratoBiblioteca == undefined || web3 == undefined )
   {
+    // URL DEL API DE KOBAN [ BLOCKCHAIN DE PRUEBAS DE KOBAN ][ NO CAMBIAR ]
     web3 = new Web3(new Web3.providers.HttpProvider(
       "https://kovan.infura.io/v3/356c75198fd545f382789993a6784632"
     ));
 
+    // INSTANCIA DE LA CUENTA METAMASK [ NO CAMBIAR ]
     web3.eth.defaultAccount = cuenta;
 
-    // CODIGO ABI DEL CONTRATO [ CAMBIAR ]
+    // CODIGO ABI [ SE DEBE CAMBIAR POR DE USTEDES MISMOS ]
     var abi = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"_ISBN","type":"string"},{"indexed":false,"internalType":"string","name":"_titulo","type":"string"}],"name":"nuevoLibroRegistrado","type":"event"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"},{"internalType":"string","name":"_titulo","type":"string"},{"internalType":"string","name":"_autor","type":"string"},{"internalType":"uint256","name":"_fecha","type":"uint256"}],"name":"anadirLibro","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"}],"name":"buscarLibro","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 
-    // DIRECCIÓN DEL CONTRATO DESPLEGADO [ CAMBIAR ]
+    // DIRECCIÓN DEL CONTRATO DESPLEGADO  [ SE DEBE CAMBIAR POR DE USTEDES MISMOS ]
     direccionBiblioteca = "0x45f84e1aFDcA7dDa342485a1e3f42175D7a19be8";
-              
+
+    // OBTIENE EL CONTRATO DESPLEGADO
     contratoBiblioteca = new web3.eth.Contract(abi, direccionBiblioteca);
   }
 }
@@ -189,24 +192,30 @@ async function obtenerInformacionContacto()
 
 } 
 
-// LIBRO
+// LIBRO - FUNCIÓN ENCARGADA DE CONSULTAR EL LIBRO EN EL CONTRATO
 async function obtenerInformacionBiblioteca() 
 {
+  // VERIFICA LA CUENTA ACTUAL EN METAMASK
   await initCuentaMetamask();
-  
+
+  // INSTANCIA EL CONTRATO DE LOS LIBROS
   await initBibliotecaWeb3();
 
   try {
+      // OBTIENE EL VALOR ACTUAL DE LA CAJA DE TEXTO DE LA INTERFAZ GRAFICA
       var isbn = $("#isbn").val();
-    
+
+      // ENVIA LA PETICIÓN AL CONTRATO Y OBTIENE EL RESULTADO
       var datosLibro = await contratoBiblioteca.methods.buscarLibro(isbn).call();
-  
+
+      // MUESTRA LOS DATOS OBTENIDOS EN LA INTERFAZ GRAFICA
       $("#info3").html("- ISBN: " + datosLibro[ 0 ] 
           + "<br>- Libro: " + datosLibro[ 1 ]
           + "<br>- Autor: " + datosLibro[ 2 ]
           + "<br>- Fecha: " + datosLibro[ 3 ]
       );
   } catch (error) {
+      // SI OCURRRE UN ERROR, SE MUESTRA EN LA INTERFAZ GRAFICA EL PROBLEMA
       $("#info3").html( error);
       console.error(error);
   }
