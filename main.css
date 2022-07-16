@@ -25,7 +25,7 @@ button {
   text-align: center;
 }
 
-#info {
+#info, #info2 {
     padding:1em;
     background-color:#fff;
     margin: 1em 0;

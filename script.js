@@ -4,21 +4,32 @@ if (typeof window.ethereum !== 'undefined') {
   console.log('MetaMask NO esta instalado.');
 }
 
-const activarMetamask = document.querySelector('.activarMetamask');
+const datosActuales = document.querySelector('.datosActuales');
 const mostrarCuenta = document.querySelector('.mostrarCuenta');
 const actualizarDatos = document.querySelector('.actualizarDatos');
 
+const buscarContacto = document.querySelector('.buscarContacto');
+const buscarLibro = document.querySelector('.buscarLibro');
+
 var cuenta;
-var direccion;
-var contrato;
+var direccion, direccionAgenda, direccionBiblioteca;
+var contrato, contratoAgenda, contratoBiblioteca;
 var web3;
         
-activarMetamask.addEventListener('click', () => {
-    obtenerCuentaMetamask();
+datosActuales.addEventListener('click', () => {
+    obtenerInformacionActual();
 });
 
 actualizarDatos.addEventListener('click', () => {
-    actualizarContrato();
+    actualizarInformacion();
+});
+
+buscarContacto.addEventListener('click', () => {
+    obtenerInformacionContacto();
+});
+
+buscarLibro.addEventListener('click', () => {
+    obtenerInformacionBiblioteca();
 });
 
 initCuentaMetamask();
@@ -30,8 +41,6 @@ async function initCuentaMetamask()
     var accounts = await ethereum.request({ method: 'eth_requestAccounts' });
     cuenta = accounts[0];
     mostrarCuenta.innerHTML = cuenta;
-  }else{
-    console.log("Ya se instancio previamente la cuenta metamask.");
   }
 }
 
@@ -52,12 +61,50 @@ async function initContratoWeb3()
     direccion = "0x9a7d0cE1eb4d82c6b3436a60FaDbf10078546a62";
               
     contrato = new web3.eth.Contract(abi, direccion);
-  }else{
-    console.log("Ya se instancio previamente el contrato.");
   }
 }
 
-async function obtenerCuentaMetamask() 
+async function initAgendaWeb3()
+{
+  if( contratoAgenda == undefined || web3 == undefined )
+  {
+    web3 = new Web3(new Web3.providers.HttpProvider(
+      "https://kovan.infura.io/v3/356c75198fd545f382789993a6784632"
+    ));
+
+    web3.eth.defaultAccount = cuenta;
+
+    // CODIGO ABI DEL CONTRATO
+    var abi = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"telefono","type":"uint256"},{"indexed":false,"internalType":"string","name":"nombre","type":"string"}],"name":"nuevoContacto","type":"event"},{"inputs":[{"internalType":"string","name":"_nombre","type":"string"},{"internalType":"uint256","name":"_telefono","type":"uint256"},{"internalType":"string","name":"_email","type":"string"},{"internalType":"uint256","name":"_edad","type":"uint256"}],"name":"anadirContacto","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"mappingContactos","outputs":[{"internalType":"string","name":"nombre","type":"string"},{"internalType":"uint256","name":"telefono","type":"uint256"},{"internalType":"string","name":"email","type":"string"},{"internalType":"uint256","name":"edad","type":"uint256"},{"internalType":"bool","name":"valido","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_telefono","type":"uint256"}],"name":"obtenerContacto","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+
+    // DIRECCIÓN DEL CONTRATO DESPLEGADO
+    direccionAgenda = "0x065a7277d460384eBf4B83eF3dab55BC80024DDE";
+              
+    contratoAgenda = new web3.eth.Contract(abi, direccionAgenda);
+  }
+}
+
+async function initBibliotecaWeb3()
+{
+  if( contratoBiblioteca == undefined || web3 == undefined )
+  {
+    web3 = new Web3(new Web3.providers.HttpProvider(
+      "https://kovan.infura.io/v3/356c75198fd545f382789993a6784632"
+    ));
+
+    web3.eth.defaultAccount = cuenta;
+
+    // CODIGO ABI DEL CONTRATO
+    var abi = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"_ISBN","type":"string"},{"indexed":false,"internalType":"string","name":"_titulo","type":"string"}],"name":"nuevoLibroRegistrado","type":"event"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"},{"internalType":"string","name":"_titulo","type":"string"},{"internalType":"string","name":"_autor","type":"string"},{"internalType":"uint256","name":"_fecha","type":"uint256"}],"name":"anadirLibro","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"}],"name":"buscarLibro","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+
+    // DIRECCIÓN DEL CONTRATO DESPLEGADO
+    direccionBiblioteca = "0x45f84e1aFDcA7dDa342485a1e3f42175D7a19be8";
+              
+    contratoBiblioteca = new web3.eth.Contract(abi, direccionBiblioteca);
+  }
+}
+
+async function obtenerInformacionActual() 
 {
   await initCuentaMetamask();
   
@@ -68,7 +115,7 @@ async function obtenerCuentaMetamask()
   $("#info").html(datosUsuario[0]+' ('+datosUsuario[1]+' años)');
 }        
 
-async function actualizarContrato() 
+async function actualizarInformacion() 
 {
   await initCuentaMetamask();
   
@@ -107,6 +154,51 @@ async function actualizarContrato()
           $("#info").html(error["message"]);
           console.log(error);
         }); 
-    
   }
 }
+
+async function obtenerInformacionContacto() 
+{
+  await initCuentaMetamask();
+  
+  await initAgendaWeb3();
+
+  try {
+      var telefono = $("#telefono").val();
+    
+      var datosAgenda = await contratoAgenda.methods.obtenerContacto(telefono).call();
+  
+      $("#info2").html("- Nombre: " + datosAgenda[ 0 ] 
+          + "<br>- Telefono: " + datosAgenda[ 1 ]
+          + "<br>- Email: " + datosAgenda[ 2 ]
+          + "<br>- Edad: " + datosAgenda[ 3 ]
+      );
+  } catch (error) {
+      $("#info2").html( error);
+      console.error(error);
+  }
+
+} 
+
+async function obtenerInformacionBiblioteca() 
+{
+  await initCuentaMetamask();
+  
+  await initBibliotecaWeb3();
+
+  try {
+      var isbn = $("#isbn").val();
+    
+      var datosLibro = await contratoBiblioteca.methods.buscarLibro(isbn).call();
+  
+      $("#info3").html("- ISBN: " + datosLibro[ 0 ] 
+          + "<br>- Libro: " + datosLibro[ 1 ]
+          + "<br>- Autor: " + datosLibro[ 2 ]
+          + "<br>- Fecha: " + datosLibro[ 3 ]
+      );
+  } catch (error) {
+      $("#info3").html( error);
+      console.error(error);
+  }
+
+} 
