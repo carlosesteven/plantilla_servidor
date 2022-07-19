@@ -18,12 +18,20 @@ var web3;
 // LIBROS - BOTON: BUSCAR LIBRO
 const buscarLibro = document.querySelector('.buscarLibro');
 
+// LIBROS - BOTON: AGREGAR LIBRO
+const agregarLibro = document.querySelector('.agregarLibro');
+
 // LIBROS - VARIABLES DONDE ESTARA EL CONTRATO Y LA DIRECCIÓN DEL CONTRATO DESPLEGADA
 var direccionBiblioteca, contratoBiblioteca;
 
 // LIBROS - EVENTO QUE DETECTA CUANDO EL USUARIO HACE CLIC SOBRE EL BOTON: BUSCAR LIBRO
 buscarLibro.addEventListener('click', () => {
     obtenerInformacionBiblioteca();
+});
+
+// LIBROS - EVENTO QUE DETECTA CUANDO EL USUARIO HACE CLIC SOBRE EL BOTON: AGREGAR LIBRO
+agregarLibro.addEventListener('click', () => {
+    crearNuevoLibro();
 });
 
 
@@ -177,10 +185,10 @@ async function initBibliotecaWeb3()
     web3.eth.defaultAccount = cuenta;
 
     // CODIGO ABI [ SE DEBE CAMBIAR POR DE USTEDES MISMOS ]
-    var abi = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"_ISBN","type":"string"},{"indexed":false,"internalType":"string","name":"_titulo","type":"string"}],"name":"nuevoLibroRegistrado","type":"event"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"},{"internalType":"string","name":"_titulo","type":"string"},{"internalType":"string","name":"_autor","type":"string"},{"internalType":"uint256","name":"_fecha","type":"uint256"}],"name":"anadirLibro","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"}],"name":"buscarLibro","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+    var abi = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"_ISBN","type":"string"},{"indexed":false,"internalType":"string","name":"_titulo","type":"string"}],"name":"nuevoLibroRegistrado","type":"event"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"},{"internalType":"string","name":"_titulo","type":"string"},{"internalType":"string","name":"_autor","type":"string"},{"internalType":"uint256","name":"_fecha","type":"uint256"}],"name":"agregarLibro","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"}],"name":"buscarLibro","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 
     // DIRECCIÓN DEL CONTRATO DESPLEGADO  [ SE DEBE CAMBIAR POR DE USTEDES MISMOS ]
-    direccionBiblioteca = "0x45f84e1aFDcA7dDa342485a1e3f42175D7a19be8";
+    direccionBiblioteca = "0xe6263fB1075213310cCb891D0B8448D296bfCe32";
 
     // OBTIENE EL CONTRATO DESPLEGADO
     contratoBiblioteca = new web3.eth.Contract(abi, direccionBiblioteca);
@@ -201,6 +209,7 @@ async function obtenerInformacionBiblioteca()
       var isbn = $("#isbn").val();
 
       // ENVIA LA PETICIÓN AL CONTRATO Y OBTIENE EL RESULTADO
+      // DEBEN ESPECIFICAR EL NOMBRE DE LA FUNCIÓN QUE DEFINIERON EN SU CONTRATO, EN MI CASO YO LA LLAME "buscarLibro", SI TIENEN UN NOMBRE DIFERENTE A ESE, DEBEN ESPECIFICARLO LUEGO DE LA PALABRA .methods.
       var datosLibro = await contratoBiblioteca.methods.buscarLibro(isbn).call();
 
       // MUESTRA LOS DATOS OBTENIDOS EN LA INTERFAZ GRAFICA
@@ -214,5 +223,71 @@ async function obtenerInformacionBiblioteca()
       $("#info3").html( error);
       console.error(error);
   }
-
 } 
+
+// LIBRO - FUNCIÓN ENCARGADA DE AGREGAR UN LIBRO EN EL CONTRATO
+async function crearNuevoLibro() 
+{
+  // VERIFICA LA CUENTA ACTUAL EN METAMASK
+  await initCuentaMetamask();
+
+  // INSTANCIA EL CONTRATO DE LOS LIBROS
+  await initBibliotecaWeb3();
+
+  // OBTIENE LOS VALORES ACTUALES DE LA INTERFAZ GRAFICA EN HTML
+  var ISBN =  $("#ISBN").val();
+  var titulo = $("#titulo").val();
+  var autor = $("#autor").val();
+  var fecha = $("#fecha").val();
+
+  // VALIDA QUE NO HAYAN PARAMETROS SIN COMPLETAR
+  if( ISBN == "" || titulo == "" || autor == "" || fecha == "" )
+  {
+    // MUESTRA UN MENSAJE EN CASO DE ESTAR ALGUN CAMPO VACIO
+    alert("Hay parametros en blanco");
+  }else{
+
+    // MUESTRA EL ESTADO ACTUAL EN LA INTERFAZ HTML
+    $("#info3").html("Autoriza la transacción en MetaMask");
+
+    // CONFIGURA LOS PARAMETROS DE LA TRANSACCIÓN
+    // DEBEN ESPECIFICAR EL NOMBRE DE LA FUNCIÓN QUE DEFINIERON EN SU CONTRATO, EN MI CASO YO LA LLAME "agregarLibro", SI TIENEN UN NOMBRE DIFERENTE A ESE, DEBEN ESPECIFICARLO LUEGO DE LA PALABRA .methods.
+    var parametros = {
+      to: direccionBiblioteca, 
+      from: ethereum.selectedAddress,
+      data: contratoBiblioteca.methods.agregarLibro(
+        ISBN,
+        titulo,
+        autor,
+        fecha
+      ).encodeABI(),
+    };
+
+    // REALIZA LA TRANSACCIÓN
+    ethereum.request({
+        method: "eth_sendTransaction",
+        params: [parametros],
+      })
+        .then((result) => {
+
+          // REINICIA LOS VALORES REGISTRADOS DE LA INTERFAZ HTML
+          $("#ISBN").val("");
+          $("#titulo").val("");
+          $("#autor").val("");
+          $("#fecha").val("");
+
+          // MUESTRA EL HASH DE LA TRANSACCIÓN
+          $("#info3").html("Se ha registrado un nuevo libro.<br><br>Hash: " + result);
+
+          // IMPRIME EN CONSOLA TODOS LOS DATOS
+          console.log(result);
+        })
+        .catch((error) => {
+          // EN CASO DE ERROR, MUESTRA LA CAUSA EN LA INTERFAZ GRAFICA
+          $("#info3").html(error["message"]);
+
+          // IMPRIME EN CONSOLA EL REPORTE DE ERROR COMPLETO
+          console.log(error);
+        }); 
+  }
+}
