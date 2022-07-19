@@ -61,10 +61,8 @@ async function initContratoWeb3()
 
     web3.eth.defaultAccount = cuenta;
 
-    // CODIGO ABI DEL CONTRATO
     var abi = [{"inputs":[{"internalType":"string","name":"_nombre","type":"string"},{"internalType":"uint256","name":"_edad","type":"uint256"}],"name":"cambiarInformacion","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"verInformacion","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 
-    // DIRECCIÓN DEL CONTRATO DESPLEGADO
     direccion = "0x9a7d0cE1eb4d82c6b3436a60FaDbf10078546a62";
               
     contrato = new web3.eth.Contract(abi, direccion);
@@ -81,38 +79,11 @@ async function initAgendaWeb3()
 
     web3.eth.defaultAccount = cuenta;
 
-    // CODIGO ABI DEL CONTRATO
     var abi = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"telefono","type":"uint256"},{"indexed":false,"internalType":"string","name":"nombre","type":"string"}],"name":"nuevoContacto","type":"event"},{"inputs":[{"internalType":"string","name":"_nombre","type":"string"},{"internalType":"uint256","name":"_telefono","type":"uint256"},{"internalType":"string","name":"_email","type":"string"},{"internalType":"uint256","name":"_edad","type":"uint256"}],"name":"anadirContacto","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"mappingContactos","outputs":[{"internalType":"string","name":"nombre","type":"string"},{"internalType":"uint256","name":"telefono","type":"uint256"},{"internalType":"string","name":"email","type":"string"},{"internalType":"uint256","name":"edad","type":"uint256"},{"internalType":"bool","name":"valido","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_telefono","type":"uint256"}],"name":"obtenerContacto","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 
-    // DIRECCIÓN DEL CONTRATO DESPLEGADO
     direccionAgenda = "0x065a7277d460384eBf4B83eF3dab55BC80024DDE";
               
     contratoAgenda = new web3.eth.Contract(abi, direccionAgenda);
-  }
-}
-
-
-// LIBRO - FUNCIÓN QUE INSTANCIA EL CONTRATO DE LA BIBLIOTECA
-async function initBibliotecaWeb3()
-{
-  if( contratoBiblioteca == undefined || web3 == undefined )
-  {
-    // URL DEL API DE KOBAN [ BLOCKCHAIN DE PRUEBAS DE KOBAN ][ NO CAMBIAR ]
-    web3 = new Web3(new Web3.providers.HttpProvider(
-      "https://kovan.infura.io/v3/356c75198fd545f382789993a6784632"
-    ));
-
-    // INSTANCIA DE LA CUENTA METAMASK [ NO CAMBIAR ]
-    web3.eth.defaultAccount = cuenta;
-
-    // CODIGO ABI [ SE DEBE CAMBIAR POR DE USTEDES MISMOS ]
-    var abi = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"_ISBN","type":"string"},{"indexed":false,"internalType":"string","name":"_titulo","type":"string"}],"name":"nuevoLibroRegistrado","type":"event"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"},{"internalType":"string","name":"_titulo","type":"string"},{"internalType":"string","name":"_autor","type":"string"},{"internalType":"uint256","name":"_fecha","type":"uint256"}],"name":"anadirLibro","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"}],"name":"buscarLibro","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
-
-    // DIRECCIÓN DEL CONTRATO DESPLEGADO  [ SE DEBE CAMBIAR POR DE USTEDES MISMOS ]
-    direccionBiblioteca = "0x45f84e1aFDcA7dDa342485a1e3f42175D7a19be8";
-
-    // OBTIENE EL CONTRATO DESPLEGADO
-    contratoBiblioteca = new web3.eth.Contract(abi, direccionBiblioteca);
   }
 }
 
@@ -191,6 +162,30 @@ async function obtenerInformacionContacto()
   }
 
 } 
+
+// LIBRO - FUNCIÓN QUE INSTANCIA EL CONTRATO DE LA BIBLIOTECA
+async function initBibliotecaWeb3()
+{
+  if( contratoBiblioteca == undefined || web3 == undefined )
+  {
+    // URL DEL API DE KOBAN [ BLOCKCHAIN DE PRUEBAS DE KOBAN ][ NO CAMBIAR ]
+    web3 = new Web3(new Web3.providers.HttpProvider(
+      "https://kovan.infura.io/v3/356c75198fd545f382789993a6784632"
+    ));
+
+    // INSTANCIA DE LA CUENTA METAMASK [ NO CAMBIAR ]
+    web3.eth.defaultAccount = cuenta;
+
+    // CODIGO ABI [ SE DEBE CAMBIAR POR DE USTEDES MISMOS ]
+    var abi = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"_ISBN","type":"string"},{"indexed":false,"internalType":"string","name":"_titulo","type":"string"}],"name":"nuevoLibroRegistrado","type":"event"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"},{"internalType":"string","name":"_titulo","type":"string"},{"internalType":"string","name":"_autor","type":"string"},{"internalType":"uint256","name":"_fecha","type":"uint256"}],"name":"anadirLibro","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_ISBN","type":"string"}],"name":"buscarLibro","outputs":[{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"string","name":"","type":"string"},{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+
+    // DIRECCIÓN DEL CONTRATO DESPLEGADO  [ SE DEBE CAMBIAR POR DE USTEDES MISMOS ]
+    direccionBiblioteca = "0x45f84e1aFDcA7dDa342485a1e3f42175D7a19be8";
+
+    // OBTIENE EL CONTRATO DESPLEGADO
+    contratoBiblioteca = new web3.eth.Contract(abi, direccionBiblioteca);
+  }
+}
 
 // LIBRO - FUNCIÓN ENCARGADA DE CONSULTAR EL LIBRO EN EL CONTRATO
 async function obtenerInformacionBiblioteca() 
